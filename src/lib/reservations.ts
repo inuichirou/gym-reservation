@@ -1,9 +1,9 @@
 import { supabase, isSupabaseConfigured } from './supabase'
 import type { Reservation, TimeSlotInfo } from '../types/database'
 
-// 営業時間の時間スロット定義（9:00〜19:00、30分刻み）
+// 営業時間の時間スロット定義（9:00〜23:00、30分刻み）
 const TIME_SLOTS: { slot: string; label: string }[] = []
-for (let h = 9; h < 19; h++) {
+for (let h = 9; h < 23; h++) {
   const hh = String(h).padStart(2, '0')
   const hh1 = String(h + 1).padStart(2, '0')
   TIME_SLOTS.push(
