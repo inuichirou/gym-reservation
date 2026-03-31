@@ -1,12 +1,8 @@
 import { supabase, isSupabaseConfigured } from './supabase'
 import type { Reservation, Member } from '../types/database'
 
-// 管理者パスワード（環境変数、デフォルト: 0000）
-const envPassword = import.meta.env.VITE_ADMIN_PASSWORD
-const ADMIN_PASSWORD: string =
-  typeof envPassword === 'string' && envPassword.length > 0
-    ? envPassword
-    : '0000'
+// 管理者パスワード
+const ADMIN_PASSWORD = '0000'
 
 // 管理者パスワードを照合
 export function verifyAdminPassword(password: string): boolean {
