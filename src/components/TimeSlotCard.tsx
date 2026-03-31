@@ -7,7 +7,6 @@ interface TimeSlotCardProps {
 
 // 時間スロットカード：状態に応じた色分けとタッチ操作を提供
 export function TimeSlotCard({ slot, onTap }: TimeSlotCardProps) {
-  // 状態に応じたスタイルを決定
   const getStyles = () => {
     switch (slot.status) {
       case 'available':
@@ -23,7 +22,7 @@ export function TimeSlotCard({ slot, onTap }: TimeSlotCardProps) {
           card: 'bg-cyan-500 border-2 border-cyan-600 hover:bg-cyan-600 active:bg-cyan-700 cursor-pointer',
           time: 'text-white',
           label: 'text-cyan-100',
-          labelText: '✅ あなたの予約',
+          labelText: '✅ 予約済',
           icon: '',
         }
       case 'reserved':
@@ -31,8 +30,8 @@ export function TimeSlotCard({ slot, onTap }: TimeSlotCardProps) {
           card: 'bg-red-400 border-2 border-red-500 cursor-not-allowed opacity-80',
           time: 'text-white',
           label: 'text-red-100',
-          labelText: '予約済み',
-          icon: '✕',
+          labelText: '✕',
+          icon: '',
         }
     }
   }
@@ -43,12 +42,12 @@ export function TimeSlotCard({ slot, onTap }: TimeSlotCardProps) {
     <button
       onClick={() => onTap(slot)}
       disabled={slot.status === 'reserved'}
-      className={`${styles.card} rounded-2xl p-6 transition-all duration-150 active:scale-95 select-none flex flex-col items-center justify-center min-h-[140px] shadow-md`}
+      className={`${styles.card} rounded-xl p-3 transition-all duration-150 active:scale-95 select-none flex flex-col items-center justify-center min-h-[90px] shadow-sm`}
     >
-      <span className={`text-2xl font-bold ${styles.time}`}>
+      <span className={`text-base font-bold ${styles.time} leading-tight`}>
         {slot.label}
       </span>
-      <span className={`text-lg font-medium mt-2 ${styles.label}`}>
+      <span className={`text-sm font-medium mt-1 ${styles.label}`}>
         {styles.icon} {styles.labelText}
       </span>
     </button>

@@ -9,16 +9,19 @@ import {
 import type { TimeSlotInfo } from '../types/database'
 import { TimeSlotCard } from './TimeSlotCard'
 import { ConfirmDialog } from './ConfirmDialog'
+import { CallBanner } from './CallBanner'
 import toast from 'react-hot-toast'
 
 interface ReservationScreenProps {
   memberId: string
+  memberName: string
   onLogout: () => void
 }
 
-// 予約画面：時間スロット一覧を表示し、タッチで予約/キャンセルできる
+// 予約画面：30分刻みの時間スロット一覧 + 自動呼び出し通知
 export function ReservationScreen({
   memberId,
+  memberName,
   onLogout,
 }: ReservationScreenProps) {
   const [slots, setSlots] = useState<TimeSlotInfo[]>([])
@@ -26,7 +29,6 @@ export function ReservationScreen({
   const [selectedSlot, setSelectedSlot] = useState<TimeSlotInfo | null>(null)
   const [processing, setProcessing] = useState(false)
 
-  // スロットデータを再読み込み
   const loadSlots = useCallback(async () => {
     try {
       const data = await fetchTodaySlots(memberId)
@@ -43,7 +45,6 @@ export function ReservationScreen({
   useEffect(() => {
     loadSlots()
 
-    // Realtimeで他のタブレットからの変更をリアルタイム反映
     const unsubscribe = subscribeToReservations(() => {
       loadSlots()
     })
@@ -51,13 +52,11 @@ export function ReservationScreen({
     return unsubscribe
   }, [loadSlots])
 
-  // スロットをタッチしたとき
   const handleSlotTap = (slot: TimeSlotInfo) => {
-    if (slot.status === 'reserved') return // 他人の予約はタップ不可
+    if (slot.status === 'reserved') return
     setSelectedSlot(slot)
   }
 
-  // 確認ダイアログで「はい」を押したとき
   const handleConfirm = async () => {
     if (!selectedSlot) return
     setProcessing(true)
@@ -81,7 +80,6 @@ export function ReservationScreen({
     }
   }
 
-  // 今日の日付を表示用にフォーマット
   const todayFormatted = (() => {
     const today = getTodayDate()
     const [y, m, d] = today.split('-')
@@ -100,10 +98,10 @@ export function ReservationScreen({
             🏋️ ジム ワンタッチ予約
           </h1>
           <p className="text-lg text-cyan-600 font-medium mt-1">
-            会員番号 {memberId} さん、こんにちは！
+            会員番号 {memberId} {memberName} さん、こんにちは！
           </p>
         </div>
-        <div className="flex items-center gap-4">
+        <div className="flex items-center gap-3">
           <span className="text-lg text-gray-600 font-medium">
             📅 {todayFormatted}
           </span>
@@ -116,9 +114,12 @@ export function ReservationScreen({
         </div>
       </header>
 
+      {/* 予約時間の自動呼び出しバナー */}
+      <CallBanner memberId={memberId} memberName={memberName} />
+
       {/* メインコンテンツ */}
       <main className="flex-1 p-6">
-        <h2 className="text-2xl font-bold text-gray-700 text-center mb-6">
+        <h2 className="text-2xl font-bold text-gray-700 text-center mb-4">
           予約したい時間をタッチしてください
         </h2>
 
@@ -129,7 +130,7 @@ export function ReservationScreen({
             </div>
           </div>
         ) : (
-          <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-5 gap-4 max-w-6xl mx-auto">
+          <div className="grid grid-cols-4 md:grid-cols-5 lg:grid-cols-10 gap-2 max-w-7xl mx-auto">
             {slots.map((slot) => (
               <TimeSlotCard
                 key={slot.slot}

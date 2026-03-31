@@ -1,15 +1,18 @@
 import { useState } from 'react'
+import { loginMember } from '../lib/members'
 
 interface LoginScreenProps {
-  onLogin: (memberId: string) => void
+  onLogin: (memberId: string, memberName: string) => void
+  onRegister: () => void
 }
 
-// ログイン画面：会員番号を入力してログインする
-export function LoginScreen({ onLogin }: LoginScreenProps) {
+// ログイン画面：会員番号を入力してログインする（DB照合あり）
+export function LoginScreen({ onLogin, onRegister }: LoginScreenProps) {
   const [memberId, setMemberId] = useState('')
   const [error, setError] = useState('')
+  const [loading, setLoading] = useState(false)
 
-  const handleSubmit = () => {
+  const handleSubmit = async () => {
     const trimmed = memberId.trim()
     if (!trimmed) {
       setError('会員番号を入力してください。')
@@ -19,8 +22,24 @@ export function LoginScreen({ onLogin }: LoginScreenProps) {
       setError('会員番号は1〜5桁の数字で入力してください。')
       return
     }
+
     setError('')
-    onLogin(trimmed)
+    setLoading(true)
+
+    try {
+      const member = await loginMember(trimmed)
+      if (!member) {
+        setError('この会員番号は登録されていません。')
+        return
+      }
+      onLogin(member.member_id, member.name)
+    } catch (err) {
+      setError(
+        err instanceof Error ? err.message : 'ログインに失敗しました'
+      )
+    } finally {
+      setLoading(false)
+    }
   }
 
   // テンキー入力
@@ -101,10 +120,18 @@ export function LoginScreen({ onLogin }: LoginScreenProps) {
         {/* ログインボタン */}
         <button
           onClick={handleSubmit}
-          disabled={!memberId}
-          className="w-full bg-cyan-500 hover:bg-cyan-600 active:bg-cyan-700 disabled:bg-gray-300 disabled:cursor-not-allowed text-white text-2xl font-bold rounded-2xl py-5 transition-all duration-100 active:scale-[0.98] select-none shadow-lg"
+          disabled={!memberId || loading}
+          className="w-full bg-cyan-500 hover:bg-cyan-600 active:bg-cyan-700 disabled:bg-gray-300 disabled:cursor-not-allowed text-white text-2xl font-bold rounded-2xl py-5 transition-all duration-100 active:scale-[0.98] select-none shadow-lg mb-4"
         >
-          ログイン
+          {loading ? 'ログイン中...' : 'ログイン'}
+        </button>
+
+        {/* 新規登録リンク */}
+        <button
+          onClick={onRegister}
+          className="w-full bg-emerald-100 hover:bg-emerald-200 active:bg-emerald-300 text-emerald-700 text-xl font-bold rounded-2xl py-4 transition-all duration-100 active:scale-[0.98] select-none"
+        >
+          📝 新規会員登録はこちら
         </button>
       </div>
     </div>

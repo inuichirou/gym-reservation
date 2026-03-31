@@ -1,23 +1,18 @@
 import { supabase, isSupabaseConfigured } from './supabase'
 import type { Reservation, TimeSlotInfo } from '../types/database'
 
-// 営業時間の時間スロット定義（9:00〜19:00）
-const TIME_SLOTS = [
-  { slot: '09:00-10:00', label: '9:00 〜 10:00' },
-  { slot: '10:00-11:00', label: '10:00 〜 11:00' },
-  { slot: '11:00-12:00', label: '11:00 〜 12:00' },
-  { slot: '12:00-13:00', label: '12:00 〜 13:00' },
-  { slot: '13:00-14:00', label: '13:00 〜 14:00' },
-  { slot: '14:00-15:00', label: '14:00 〜 15:00' },
-  { slot: '15:00-16:00', label: '15:00 〜 16:00' },
-  { slot: '16:00-17:00', label: '16:00 〜 17:00' },
-  { slot: '17:00-18:00', label: '17:00 〜 18:00' },
-  { slot: '18:00-19:00', label: '18:00 〜 19:00' },
-]
+// 営業時間の時間スロット定義（9:00〜19:00、30分刻み）
+const TIME_SLOTS: { slot: string; label: string }[] = []
+for (let h = 9; h < 19; h++) {
+  const hh = String(h).padStart(2, '0')
+  const hh1 = String(h + 1).padStart(2, '0')
+  TIME_SLOTS.push(
+    { slot: `${hh}:00-${hh}:30`, label: `${h}:00 〜 ${h}:30` },
+    { slot: `${hh}:30-${hh1}:00`, label: `${h}:30 〜 ${h + 1}:00` },
+  )
+}
 
-// ============================================================
-// デモモード用のインメモリストレージ（Supabase未設定時に使用）
-// ============================================================
+// デモモード用のインメモリストレージ
 const demoReservations: Reservation[] = []
 
 // 今日の日付をYYYY-MM-DD形式で取得
@@ -45,11 +40,9 @@ export async function fetchTodaySlots(
     if (error) throw new Error(`予約データの取得に失敗しました: ${error.message}`)
     reservations = data as Reservation[]
   } else {
-    // デモモード：インメモリデータを使用
     reservations = demoReservations.filter((r) => r.date === today)
   }
 
-  // 各スロットの状態を判定
   return TIME_SLOTS.map(({ slot, label }) => {
     const reservation = reservations.find((r) => r.time_slot === slot)
     if (!reservation) {
@@ -80,7 +73,6 @@ export async function createReservation(
   const today = getTodayDate()
 
   if (isSupabaseConfigured && supabase) {
-    // 重複チェック
     const { data: existing } = await supabase
       .from('reservations')
       .select('id')
@@ -105,7 +97,6 @@ export async function createReservation(
       throw new Error(`予約に失敗しました: ${error.message}`)
     }
   } else {
-    // デモモード
     const existing = demoReservations.find(
       (r) => r.date === today && r.time_slot === timeSlot
     )
@@ -141,7 +132,6 @@ export async function cancelReservation(
       throw new Error(`予約のキャンセルに失敗しました: ${error.message}`)
     }
   } else {
-    // デモモード
     const idx = demoReservations.findIndex(
       (r) =>
         r.member_id === memberId &&
@@ -154,10 +144,9 @@ export async function cancelReservation(
   }
 }
 
-// Realtimeサブスクリプションを開始（予約変更をリアルタイムで検知）
+// Realtimeサブスクリプション（予約変更をリアルタイムで検知）
 export function subscribeToReservations(onUpdate: () => void): () => void {
   if (!isSupabaseConfigured || !supabase) {
-    // デモモードではRealtimeなし
     return () => {}
   }
 
@@ -165,14 +154,8 @@ export function subscribeToReservations(onUpdate: () => void): () => void {
     .channel('reservations-changes')
     .on(
       'postgres_changes',
-      {
-        event: '*',
-        schema: 'public',
-        table: 'reservations',
-      },
-      () => {
-        onUpdate()
-      }
+      { event: '*', schema: 'public', table: 'reservations' },
+      () => onUpdate()
     )
     .subscribe()
 

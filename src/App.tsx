@@ -1,14 +1,30 @@
 import { useState } from 'react'
 import { LoginScreen } from './components/LoginScreen'
+import { RegisterScreen } from './components/RegisterScreen'
 import { ReservationScreen } from './components/ReservationScreen'
 import { Toaster } from 'react-hot-toast'
 
+type Screen = 'login' | 'register' | 'reservation'
+
 function App() {
-  const [memberId, setMemberId] = useState<string | null>(null)
+  const [screen, setScreen] = useState<Screen>('login')
+  const [memberId, setMemberId] = useState('')
+  const [memberName, setMemberName] = useState('')
+
+  const handleLogin = (id: string, name: string) => {
+    setMemberId(id)
+    setMemberName(name)
+    setScreen('reservation')
+  }
+
+  const handleLogout = () => {
+    setMemberId('')
+    setMemberName('')
+    setScreen('login')
+  }
 
   return (
     <>
-      {/* トースト通知 */}
       <Toaster
         position="top-center"
         toastOptions={{
@@ -21,14 +37,26 @@ function App() {
         }}
       />
 
-      {/* ログイン前：ログイン画面 / ログイン後：予約画面 */}
-      {memberId ? (
+      {screen === 'login' && (
+        <LoginScreen
+          onLogin={handleLogin}
+          onRegister={() => setScreen('register')}
+        />
+      )}
+
+      {screen === 'register' && (
+        <RegisterScreen
+          onRegistered={() => setScreen('login')}
+          onBack={() => setScreen('login')}
+        />
+      )}
+
+      {screen === 'reservation' && (
         <ReservationScreen
           memberId={memberId}
-          onLogout={() => setMemberId(null)}
+          memberName={memberName}
+          onLogout={handleLogout}
         />
-      ) : (
-        <LoginScreen onLogin={setMemberId} />
       )}
     </>
   )
