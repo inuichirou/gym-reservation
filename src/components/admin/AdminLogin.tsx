@@ -32,12 +32,12 @@ export function AdminLogin({ onLogin }: AdminLoginProps) {
 
   return (
     <div className="min-h-screen bg-gradient-to-br from-slate-50 to-slate-200 flex items-center justify-center p-6">
-      <div className="bg-white rounded-3xl shadow-2xl p-10 w-full max-w-md text-center">
+      <div className="bg-white rounded-3xl shadow-2xl p-10 w-full max-w-lg text-center">
         <div className="text-5xl mb-4">🔐</div>
         <h1 className="text-3xl font-bold text-gray-800 mb-2">管理者ログイン</h1>
         <p className="text-gray-500 mb-6 text-lg">パスワードを入力してください</p>
 
-        <div className="bg-gray-50 border-2 border-gray-200 rounded-2xl py-4 px-6 text-3xl font-mono tracking-[0.5em] text-gray-800 min-h-[56px] flex items-center justify-center mb-4">
+        <div className="bg-gray-50 border-2 border-gray-200 rounded-2xl py-5 px-6 text-3xl font-mono tracking-[0.5em] text-gray-800 min-h-[64px] flex items-center justify-center mb-6">
           {password ? '●'.repeat(password.length) : (
             <span className="text-gray-300 tracking-normal text-xl">パスワード</span>
           )}
@@ -49,29 +49,29 @@ export function AdminLogin({ onLogin }: AdminLoginProps) {
           </div>
         )}
 
-        <div className="grid grid-cols-3 gap-3 mb-6">
+        <div className="grid grid-cols-3 gap-3 mb-8">
           {['1','2','3','4','5','6','7','8','9'].map((key) => (
             <button key={key} onClick={() => handleKeyPress(key)}
-              className="bg-gray-100 hover:bg-gray-200 active:bg-gray-300 text-gray-800 text-2xl font-bold rounded-2xl py-4 transition-all active:scale-95 select-none">
+              className="bg-gray-100 hover:bg-gray-200 active:bg-gray-300 text-gray-800 text-3xl font-bold rounded-2xl py-5 transition-all active:scale-95 select-none">
               {key}
             </button>
           ))}
           <button onClick={() => handleKeyPress('clear')}
-            className="bg-orange-100 text-orange-600 text-lg font-bold rounded-2xl py-4 transition-all active:scale-95 select-none">
+            className="bg-orange-100 hover:bg-orange-200 active:bg-orange-300 text-orange-600 text-xl font-bold rounded-2xl py-5 transition-all active:scale-95 select-none">
             クリア
           </button>
           <button onClick={() => handleKeyPress('0')}
-            className="bg-gray-100 text-gray-800 text-2xl font-bold rounded-2xl py-4 transition-all active:scale-95 select-none">
+            className="bg-gray-100 hover:bg-gray-200 active:bg-gray-300 text-gray-800 text-3xl font-bold rounded-2xl py-5 transition-all active:scale-95 select-none">
             0
           </button>
           <button onClick={() => handleKeyPress('delete')}
-            className="bg-orange-100 text-orange-600 text-lg font-bold rounded-2xl py-4 transition-all active:scale-95 select-none">
+            className="bg-orange-100 hover:bg-orange-200 active:bg-orange-300 text-orange-600 text-xl font-bold rounded-2xl py-5 transition-all active:scale-95 select-none">
             ←
           </button>
         </div>
 
         <button onClick={handleSubmit} disabled={!password}
-          className="w-full bg-slate-700 hover:bg-slate-800 disabled:bg-gray-300 text-white text-xl font-bold rounded-2xl py-4 transition-all active:scale-[0.98] select-none shadow-lg">
+          className="w-full bg-slate-700 hover:bg-slate-800 disabled:bg-gray-300 disabled:cursor-not-allowed text-white text-2xl font-bold rounded-2xl py-5 transition-all active:scale-[0.98] select-none shadow-lg">
           ログイン
         </button>
       </div>
